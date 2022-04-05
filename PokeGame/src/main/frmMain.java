@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -23,9 +24,15 @@ import javax.swing.ImageIcon;
 public class frmMain extends javax.swing.JFrame {
     
     Pokemon whoIsThatPokemon; // objeto de la clase que hace match con los datos de la API
+    Pokemon whoIsThatPokemon1;
+    Pokemon whoIsThatPokemon2;
+    Pokemon whoIsThatPokemon3;
     Pokedex dexter = new Pokedex();
     PokeViewer visor = new PokeViewer();
     Reloj horaActual = new Reloj();
+    Hilo hilo1 = new Hilo();
+    MostrarSprite muestra = new MostrarSprite();
+    int botonMuestra;
 
     /**
      * Creates new form frmMain
@@ -33,6 +40,9 @@ public class frmMain extends javax.swing.JFrame {
     public frmMain() {
         initComponents();
         horaActual.start();
+        hilo1.start();
+        muestra.start();
+        this.setLocationRelativeTo(null);
     }
     
     public class PokeViewer {
@@ -67,6 +77,79 @@ public class frmMain extends javax.swing.JFrame {
         }
     }
 
+    public class MostrarSprite extends Thread{
+        boolean estado = false;
+        public void startRunning(){
+            estado = true;
+        }
+        public void run(){
+            while (true) {                
+                lblHoraSistema.setText(lblHoraSistema.getText());       //No entra al ciclo sin esta linea??
+                while (estado) {                    
+                    visor.mostrarSprites();
+                }
+            }
+        }
+    }
+    
+    public class Hilo extends Thread{
+        boolean estado = false;
+        public void startRunning(){
+            estado = true;
+        }
+        public void stopRunning(){
+            estado = false;
+        }
+        public void run(){
+            while (true) {
+                
+                lblHoraSistema.setText(lblHoraSistema.getText());       //No entra al ciclo sin esta linea??
+                while (estado) {
+                    try {
+                        
+                        whoIsThatPokemon = dexter.buscarPokemon();
+                        whoIsThatPokemon1 = dexter.buscarPokemon();
+                        whoIsThatPokemon2 = dexter.buscarPokemon();
+                        whoIsThatPokemon3 = dexter.buscarPokemon();
+                        
+                        botonMuestra = (int) Math.floor(Math.random() * 4 + 1);
+                        if (botonMuestra == 1) {
+                            btnPokemon1.setText(whoIsThatPokemon.getName());
+                            btnPokemon2.setText(whoIsThatPokemon1.getName());
+                            btnPokemon3.setText(whoIsThatPokemon2.getName());
+                            btnPokemon4.setText(whoIsThatPokemon3.getName());
+                        }
+                        else if (botonMuestra == 2){
+                            btnPokemon1.setText(whoIsThatPokemon1.getName());
+                            btnPokemon2.setText(whoIsThatPokemon.getName());
+                            btnPokemon3.setText(whoIsThatPokemon2.getName());
+                            btnPokemon4.setText(whoIsThatPokemon3.getName());
+                        }
+                        else if (botonMuestra == 3){
+                            btnPokemon1.setText(whoIsThatPokemon2.getName());
+                            btnPokemon2.setText(whoIsThatPokemon1.getName());
+                            btnPokemon3.setText(whoIsThatPokemon.getName());
+                            btnPokemon4.setText(whoIsThatPokemon3.getName());
+                        }
+                        else if (botonMuestra == 4){
+                            btnPokemon1.setText(whoIsThatPokemon3.getName());
+                            btnPokemon2.setText(whoIsThatPokemon1.getName());
+                            btnPokemon3.setText(whoIsThatPokemon2.getName());
+                            btnPokemon4.setText(whoIsThatPokemon.getName());
+                        }
+                        muestra.startRunning();
+                    } catch (IOException ex) {
+                        Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    btnJugar.setText("Jugar de nuevo");
+                    stopRunning();
+                }
+            }
+        }
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -91,12 +174,32 @@ public class frmMain extends javax.swing.JFrame {
         lblSprite.setText("?");
 
         btnPokemon1.setText("???");
+        btnPokemon1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPokemon1ActionPerformed(evt);
+            }
+        });
 
         btnPokemon2.setText("???");
+        btnPokemon2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPokemon2ActionPerformed(evt);
+            }
+        });
 
         btnPokemon3.setText("???");
+        btnPokemon3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPokemon3ActionPerformed(evt);
+            }
+        });
 
         btnPokemon4.setText("???");
+        btnPokemon4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPokemon4ActionPerformed(evt);
+            }
+        });
 
         btnJugar.setText("Jugar");
         btnJugar.addActionListener(new java.awt.event.ActionListener() {
@@ -166,18 +269,48 @@ public class frmMain extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJugarActionPerformed
-        try {
-            whoIsThatPokemon = dexter.buscarPokemon();
-            btnPokemon1.setText(whoIsThatPokemon.getName());
-            btnPokemon2.setText(whoIsThatPokemon.getName());
-            btnPokemon3.setText(whoIsThatPokemon.getName());
-            btnPokemon4.setText(whoIsThatPokemon.getName());
-            visor.mostrarSprites();
-        } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        btnJugar.setText("Jugar de nuevo");
+        hilo1.startRunning();
     }//GEN-LAST:event_btnJugarActionPerformed
+
+    private void btnPokemon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokemon1ActionPerformed
+        // TODO add your handling code here:
+        if (btnPokemon1.getText().equals(whoIsThatPokemon.getName())) {
+            JOptionPane.showMessageDialog(null, "Correcto");
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Incorrecto");
+        }
+    }//GEN-LAST:event_btnPokemon1ActionPerformed
+
+    private void btnPokemon2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokemon2ActionPerformed
+        // TODO add your handling code here:
+        if (btnPokemon2.getText().equals(whoIsThatPokemon.getName())) {
+            JOptionPane.showMessageDialog(null, "Correcto");
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Incorrecto");
+        }
+    }//GEN-LAST:event_btnPokemon2ActionPerformed
+
+    private void btnPokemon3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokemon3ActionPerformed
+        // TODO add your handling code here:
+        if (btnPokemon3.getText().equals(whoIsThatPokemon.getName())) {
+            JOptionPane.showMessageDialog(null, "Correcto");
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Incorrecto");
+        }
+    }//GEN-LAST:event_btnPokemon3ActionPerformed
+
+    private void btnPokemon4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokemon4ActionPerformed
+        // TODO add your handling code here:
+        if (btnPokemon4.getText().equals(whoIsThatPokemon.getName())) {
+            JOptionPane.showMessageDialog(null, "Correcto");
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Incorrecto");
+        }
+    }//GEN-LAST:event_btnPokemon4ActionPerformed
 
     /**
      * @param args the command line arguments
